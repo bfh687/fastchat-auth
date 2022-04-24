@@ -4,7 +4,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const pool = require("../utilities").pool;
 
-router.get(
+router.put(
     "/:token",
     (req, res, next) => {
         const token = req.params.token;
