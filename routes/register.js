@@ -61,7 +61,7 @@ router.post("/", (req, res, next) => {
         let salted_hash = generateHash(req.body.password, salt);
 
         let query =
-            "insert into members(firstname, lastname, username, email, password, salt) VALUES ($1, $2, $3, $4, $5, $6) returning memberid, email";
+            "insert into members(firstname, lastname, username, email, password, salt) VALUES ($1, $2, $3, $4, $5, $6) returning memberid, email, firstname";
         let values = [first, last, username, email, salted_hash, salt];
 
         pool.query(query, values)
@@ -74,11 +74,12 @@ router.post("/", (req, res, next) => {
                 const token = jwt.sign(
                     {
                         memberid: result.rows[0].memberid,
+                        name: result.rows[0].firstname,
                         email: result.rows[0].email,
                     },
                     process.env.JSON_WEB_TOKEN,
                     {
-                        expiresIn: "1h",
+                        expiresIn: "10m",
                     }
                 );
 
@@ -94,6 +95,7 @@ router.post("/", (req, res, next) => {
                         message: "email already exists",
                     });
                 } else {
+                    console.log(error);
                     res.status(400).send({
                         message: "other error, see detail",
                         detail: error.detail,

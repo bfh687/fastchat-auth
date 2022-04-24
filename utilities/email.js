@@ -7,6 +7,9 @@ const transporter = nodemailer.createTransport({
     },
 });
 
+const server_url = "https://fastchat-auth.herokuapp.com";
+const local_url = "http://localhost:5000";
+
 const sendVerificationEmail = (receiver, token) => {
     const mail = {
         from: "fastchatauth@gmail.com",
@@ -14,7 +17,8 @@ const sendVerificationEmail = (receiver, token) => {
         subject: "Verify your FastChat account!",
         text:
             "Please verify your account by clicking on the following link: \n" +
-            `https://fastchat-auth.herokuapp.com/auth/verify/${token}`,
+            `${local_url}/auth/verify/${token}` +
+            "\n\nIf you did not initiate this request, please ignore this email.",
     };
 
     transporter.sendMail(mail, (err, info) => {

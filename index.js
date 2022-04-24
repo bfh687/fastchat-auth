@@ -11,6 +11,11 @@ const middleware = require("./middleware");
 app.use(express.json());
 app.use(middleware.jsonErrorInBody);
 
+// pug templating configuration
+const path = require("path");
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "pug");
+
 // auth routes
 app.use("/auth", require("./routes/login.js"));
 app.use("/auth", require("./routes/register.js"));
