@@ -4,6 +4,19 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const pool = require("../utilities").pool;
 
+/**
+ * @api {get} /auth/verify Request to verify a user
+ * @apiName VerifyAuth
+ * @apiGroup Auth
+ *
+ * @apiParam {String} token a signed jwt token
+ *
+ * @apiSuccess (Success 200) {boolean} success true when the user is verified
+ * @apiSuccess (Success 200) {String} email the email of the verified user
+ *
+ * @apiError (400: Error Validating Email) {String} message "Error validating the email address"
+ * @apiError (403: Invalid Token) {String} message "Invalid JWT token"
+ */
 router.get(
     "/:token",
     (req, res, next) => {

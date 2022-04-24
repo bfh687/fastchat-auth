@@ -1,15 +1,8 @@
 {
-    "name": "TCSS 450 Lab Web Service",
+    "name": "FastChat Authentication",
     "version": "0.1.0",
-    "description": "The TCSS 450 Lab Web Service API Documentation",
-    "title": "Lab API Doc",
-    "url" : "https://cfb3-lab4-backend-2020sp.herokuapp.com",
-    "order": [
-      "Hello",
-      "Params",
-      "Wait",
-      "DemoSql",
-      "Auth",
-      "Phish"
-    ]
-  }
+    "description": "FastChat Authentication API Documentation",
+    "title": "Authentication API Documentation",
+    "url": "https://fastchat-auth.herokuapp.com",
+    "order": ["Auth"]
+}

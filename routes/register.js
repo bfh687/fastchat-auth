@@ -12,6 +12,37 @@ const generateSalt = require("../utilities").generateSalt;
 const jwt = require("jsonwebtoken");
 const sendVerificationEmail = require("../utilities").sendVerificationEmail;
 
+/**
+ * @api {post} /auth Request to register a user
+ * @apiName PostAuth
+ * @apiGroup Auth
+ *
+ * @apiParam {String} first a user's first name
+ * @apiParam {String} last a user's last name
+ * @apiParam {String} email a user's email *unique
+ * @apiParam {String} password a user's password
+ * @apiParam {String} [username] a username *unique, if none provided, email will be used
+ *
+ * @apiParamExample {json} Request-Body-Example:
+ *  {
+ *      "first":"Fast",
+ *      "last":"Chat",
+ *      "email":"fastchat@mail.com",
+ *      "password":"fastchatpass"
+ *  }
+ *
+ * @apiSuccess (Success 201) {boolean} success true when the name is inserted
+ * @apiSuccess (Success 201) {String} email the email of the user inserted
+ *
+ * @apiError (400: Missing Parameters) {String} message "Missing required information"
+ *
+ * @apiError (400: Username exists) {String} message "Username exists"
+ * @apiError (400: Email exists) {String} message "Email exists"
+ *
+ * @apiError (400: Other Error) {String} message "other error, see detail"
+ * @apiError (400: Other Error) {String} detail Information about the error
+ *
+ */
 router.post("/", (req, res, next) => {
     const first = req.body.first;
     const last = req.body.last;
