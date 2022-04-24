@@ -1,21 +1,33 @@
-const sendEmail = (sender, receiver, subject, message) => {
-    //research nodemailer for sending email from node.
-    // https://nodemailer.com/about/
-    // https://www.w3schools.com/nodejs/nodejs_email.asp
-    //create a burner gmail account
-    //make sure you add the password to the environmental variables
-    //similar to the DATABASE_URL and PHISH_DOT_NET_KEY (later section of the lab)
+const nodemailer = require("nodemailer");
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: "fastchatauth@gmail.com",
+        pass: process.env.EMAIL_PWD,
+    },
+});
 
-    //fake sending an email for now. Post a message to logs.
-    console.log("*********************************************************");
-    console.log("To: " + receiver);
-    console.log("From: " + sender);
-    console.log("Subject: " + subject);
-    console.log("_________________________________________________________");
-    console.log(message);
-    console.log("*********************************************************");
+const sendVerificationEmail = (receiver, token) => {
+    const mail = {
+        from: "fastchatauth@gmail.com",
+        to: receiver,
+        subject: "Verify your FastChat account!",
+        text:
+            "Please verify your account by clicking on the following link: \n" +
+            `https://localhost:5000/auth/verify/${token}`,
+    };
+
+    transporter.sendMail(mail, (err, info) => {
+        if (err) {
+            console.log(err);
+            return false;
+        } else {
+            console.log("email sent: " + info.response);
+            return true;
+        }
+    });
 };
 
 module.exports = {
-    sendEmail,
+    sendVerificationEmail,
 };

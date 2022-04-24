@@ -3,12 +3,12 @@ const cred = require("./cred");
 const generateHash = cred.generateHash;
 const generateSalt = cred.generateSalt;
 const validation = require("./validation.js");
-const sendEmail = require("./email.js").sendEmail;
+const sendVerificationEmail = require("./email.js").sendVerificationEmail;
 
 module.exports = {
     pool,
     generateHash,
     generateSalt,
     validation,
-    sendEmail,
+    sendVerificationEmail,
 };
