@@ -14,7 +14,7 @@ const sendVerificationEmail = (receiver, token) => {
         subject: "Verify your FastChat account!",
         text:
             "Please verify your account by clicking on the following link: \n" +
-            `https://localhost:5000/auth/verify/${token}`,
+            `https://fastchat-auth.herokuapp.com/auth/verify/${token}`,
     };
 
     transporter.sendMail(mail, (err, info) => {
