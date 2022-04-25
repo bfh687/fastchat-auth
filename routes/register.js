@@ -4,7 +4,8 @@ const router = express.Router();
 const pool = require("../utilities").pool;
 
 const validation = require("../utilities").validation;
-let isStringProvided = validation.isStringProvided;
+const isStringProvided = validation.isStringProvided;
+const isValidPassword = validation.isValidPassword;
 
 const generateHash = require("../utilities").generateHash;
 const generateSalt = require("../utilities").generateSalt;
@@ -57,6 +58,14 @@ router.post("/", (req, res, next) => {
         isStringProvided(email) &&
         isStringProvided(password)
     ) {
+        // check if password meets minimum strength requirements
+        if (!isValidPassword(password)) {
+            res.status(400).send({
+                message: "password does not meet minimum strength requirements",
+            });
+            return;
+        }
+
         let salt = generateSalt(32);
         let salted_hash = generateHash(req.body.password, salt);
 
