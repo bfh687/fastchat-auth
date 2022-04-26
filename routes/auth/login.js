@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
 
-const pool = require("../utilities").pool;
+const pool = require("../../utilities/exports").pool;
 
-const validation = require("../utilities").validation;
+const validation = require("../../utilities/exports").validation;
 const isStringProvided = validation.isStringProvided;
 
-const generateHash = require("../utilities").generateHash;
+const generateHash = require("../../utilities/exports").generateHash;
 
 // import jwt tools and jwt itself
 const jwt = require("jsonwebtoken");

@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
 
-const pool = require("../utilities").pool;
+const pool = require("../../utilities").pool;
 
-const validation = require("../utilities").validation;
+const validation = require("../../utilities").validation;
 const isStringProvided = validation.isStringProvided;
 const isValidPassword = validation.isValidPassword;
 
-const generateHash = require("../utilities").generateHash;
-const generateSalt = require("../utilities").generateSalt;
+const generateHash = require("../../utilities").generateHash;
+const generateSalt = require("../../utilities").generateSalt;
 
 /**
  * @api {put} /auth/password Request to change password

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const jwt = require("jsonwebtoken");
-const pool = require("../utilities").pool;
+const pool = require("../../utilities").pool;
 
 const remove = (memberid) => {
     const query = "delete from members where memberid = $1";
