@@ -15,29 +15,31 @@ const config = {
 };
 
 /**
- * @api {get} /auth Request to sign a user in the system
+ * @api {get} /auth Request to login a user
  * @apiName GetAuth
  * @apiGroup Auth
  *
- * @apiHeader {String} authorization "username:password" uses Basic Auth
+ * @apiHeader {String} authorization "username:password" using basic auth
  *
- * @apiSuccess {boolean} success true when the name is found and password matches
- * @apiSuccess {String} message "Authentication successful!""
- * @apiSuccess {String} token JSON Web Token
+ * @apiSuccess (201: Success) {boolean} success whether credentials match
+ * @apiSuccess (201: Success) {String} message "Authentication Successful!""
+ * @apiSuccess (201: Success) {String} token JSON Web Token
  *
  *  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 201 OK
  *     {
  *       "success": true,
- *       "message": "Authentication successful!",
+ *       "message": "Authentication Successful!",
  *       "token": "eyJhbGciO...abc123"
  *     }
  *
  * @apiError (400: Missing Authorization Header) {String} message "Missing Authorization Header"
  * @apiError (400: Malformed Authorization Header) {String} message "Malformed Authorization Header"
- * @apiError (404: User Not Found) {String} message "User not found"
- * @apiError (400: Invalid Credentials) {String} message "Credentials did not match"
- * @apiError (401: User Not Verified) {String} message "User's email is not verified"
+ * @apiError (400: Invalid Credentials) {String} message "Credentials Did Not Match"
+ *
+ * @apiError (401: User Not Verified) {String} message "Email Not Verified"
+ *
+ * @apiError (404: User Not Found) {String} message "User Not Found"
  */
 router.get(
     "/",
@@ -48,7 +50,7 @@ router.get(
         ) {
             next();
         } else {
-            res.status(400).json({ message: "missing authorization header" });
+            res.status(400).json({ message: "Missing Authorization Header" });
         }
     },
     (req, res, next) => {
@@ -68,12 +70,12 @@ router.get(
             next();
         } else {
             res.status(400).send({
-                message: "malformed authorization header",
+                message: "Malformed Authorization Header",
             });
         }
     },
     (req, res) => {
-        const query = `select username, email, password, salt, verification from members
+        const query = `select memberid, username, email, password, salt, verification from members
                        where email=$1`;
         const values = [req.auth.email];
 
@@ -81,14 +83,14 @@ router.get(
             .then((result) => {
                 if (result.rowCount == 0) {
                     res.status(404).send({
-                        message: "user not found",
+                        message: "User Not Found",
                     });
                     return;
                 }
 
                 if (result.rows[0].verification == 0) {
                     res.status(401).send({
-                        message: "email not verified",
+                        message: "Email Not Verified",
                     });
                     return;
                 }
@@ -112,14 +114,14 @@ router.get(
                         }
                     );
 
-                    res.json({
+                    res.status(201).send({
                         success: true,
-                        message: "authentication successful",
+                        message: "Authentication Successful",
                         token: token,
                     });
                 } else {
                     res.status(400).send({
-                        message: "credentials did not match",
+                        message: "Credentials Did Not Match",
                     });
                 }
             })
