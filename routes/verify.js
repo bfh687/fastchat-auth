@@ -21,7 +21,7 @@ const remove = (memberid) => {
  *
  * @apiSuccess (200: Success) {boolean} success whether credentials match
  * @apiSuccess (200: Success) {String} message "Successfully Verified Email!!"
- * @apiSuccess (200: Success) {String} token the verified email
+ * @apiSuccess (200: Success) {String} email the verified email
  *
  *  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -92,7 +92,9 @@ router.get(
         pool.query(query, values)
             .then((result) => {
                 res.status(200).send({
+                    success: true,
                     message: "Successfully Verified Email!",
+                    email: req.decoded.email,
                 });
             })
             .catch((err) => {
