@@ -23,34 +23,49 @@ const generateSalt = require("../../utilities").generateSalt;
  * @apiSuccess (200: Success) {String} message "Password Successfully Changed!"
  *
  * @apiError (400: Password Does Not Meet Requirements) {String} message "Password Does Not Meet Minimum Requirements"
+ * @apiError (400: Old Password Does Not Match) {String} message "Old Password Does Not Match"
  * @apiError (400: Error Changing Password) {String} message "Error Changing Password"
  * @apiError (400: Missing Parameters) {String} message "Missing Required Information"
  *
  */
 router.put("/", (req, res) => {
     const id = req.decoded.memberid;
-    const password = req.body.password;
-    if (isStringProvided(password)) {
-        // check if password meets minimum strength requirements
-        if (!isValidPassword(password)) {
-            res.status(400).send({
-                message: "Password Does Not Meet Minimum Requirements",
-            });
-            return;
-        }
+    const old_password = req.body.old_password;
+    const new_password = req.body.new_password;
 
-        const salt = generateSalt(32);
-        const salted_hash = generateHash(password, salt);
-
-        const query =
-            "update members set password = $1, salt = $2 where memberid = $3 returning email";
-        const values = [salted_hash, salt, id];
+    if (isStringProvided(old_password && new_password)) {
+        const query = "select salt, password from members where id = $1";
+        const values = [id];
 
         pool.query(query, values)
             .then((result) => {
-                res.status(200).send({
-                    success: true,
-                    message: "Password Successfully Changed!",
+                if (generateHash(old_password, result.salt) != result.password) {
+                    res.status(400).send({
+                        message: "Old Password Does Not Match",
+                    });
+                    return;
+                }
+
+                // check if password meets minimum strength requirements
+                if (!isValidPassword(password)) {
+                    res.status(400).send({
+                        message: "Password Does Not Meet Minimum Requirements",
+                    });
+                    return;
+                }
+
+                const salt = generateSalt(32);
+                const salted_hash = generateHash(password, salt);
+
+                const query =
+                    "update members set password = $1, salt = $2 where memberid = $3 returning email";
+                const values = [salted_hash, salt, id];
+
+                pool.query(query, values).then((result) => {
+                    res.status(200).send({
+                        success: true,
+                        message: "Password Successfully Changed!",
+                    });
                 });
             })
             .catch((err) => {
