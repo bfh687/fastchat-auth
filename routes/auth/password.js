@@ -32,9 +32,6 @@ router.post("/", (req, res) => {
   const old_password = req.body.old_password;
   const new_password = req.body.new_password;
 
-  console.log(old_password);
-  console.log(new_password);
-
   if (isStringProvided(old_password && new_password)) {
     const query = "select salt, password from members where memberid = $1";
     const values = [req.decoded.memberid];
