@@ -28,57 +28,59 @@ const generateSalt = require("../../utilities").generateSalt;
  * @apiError (400: Missing Parameters) {String} message "Missing Required Information"
  *
  */
-router.put("/", (req, res) => {
-    const id = req.decoded.memberid;
-    const old_password = req.body.old_password;
-    const new_password = req.body.new_password;
+router.post("/", (req, res) => {
+  const old_password = req.body.old_password;
+  const new_password = req.body.new_password;
 
-    if (isStringProvided(old_password && new_password)) {
-        const query = "select salt, password from members where id = $1";
-        const values = [id];
+  console.log(old_password);
+  console.log(new_password);
 
-        pool.query(query, values)
-            .then((result) => {
-                if (generateHash(old_password, result.salt) != result.password) {
-                    res.status(400).send({
-                        message: "Old Password Does Not Match",
-                    });
-                    return;
-                }
+  if (isStringProvided(old_password && new_password)) {
+    const query = "select salt, password from members where memberid = $1";
+    const values = [req.decoded.memberid];
 
-                // check if password meets minimum strength requirements
-                if (!isValidPassword(password)) {
-                    res.status(400).send({
-                        message: "Password Does Not Meet Minimum Requirements",
-                    });
-                    return;
-                }
+    pool
+      .query(query, values)
+      .then((result) => {
+        if (generateHash(old_password, result.rows[0].salt) != result.rows[0].password) {
+          res.status(400).send({
+            message: "Old Password Does Not Match",
+          });
+          return;
+        }
 
-                const salt = generateSalt(32);
-                const salted_hash = generateHash(password, salt);
+        // check if password meets minimum strength requirements
+        if (!isValidPassword(new_password)) {
+          res.status(400).send({
+            message: "Password Does Not Meet Minimum Requirements",
+          });
+          return;
+        }
 
-                const query =
-                    "update members set password = $1, salt = $2 where memberid = $3 returning email";
-                const values = [salted_hash, salt, id];
+        const salt = generateSalt(32);
+        const salted_hash = generateHash(new_password, salt);
 
-                pool.query(query, values).then((result) => {
-                    res.status(200).send({
-                        success: true,
-                        message: "Password Successfully Changed!",
-                    });
-                });
-            })
-            .catch((err) => {
-                console.log(err);
-                res.status(400).send({
-                    message: "Error Changing Password",
-                });
-            });
-    } else {
-        res.status(400).send({
-            message: "Missing Required Information",
+        const query = "update members set password = $1, salt = $2 where memberid = $3 returning email";
+        const values = [salted_hash, salt, req.decoded.memberid];
+
+        pool.query(query, values).then((result) => {
+          res.status(200).send({
+            success: true,
+            message: "Password Successfully Changed!",
+          });
         });
-    }
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).send({
+          message: "Error Changing Password",
+        });
+      });
+  } else {
+    res.status(400).send({
+      message: "Missing Required Information",
+    });
+  }
 });
 
 module.exports = router;
