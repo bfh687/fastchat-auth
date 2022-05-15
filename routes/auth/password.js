@@ -22,6 +22,7 @@ const generateSalt = require("../../utilities").generateSalt;
  * @apiSuccess (200: Success) {boolean} success whether the password was changed
  * @apiSuccess (200: Success) {String} message "Password Successfully Changed!"
  *
+ * @apiError (400: Old Password Does Not Match) {String} message "Old Password Does Not Match The Password In The Database"
  * @apiError (400: Password Does Not Meet Requirements) {String} message "Password Does Not Meet Minimum Requirements"
  * @apiError (400: Old Password Does Not Match) {String} message "Old Password Does Not Match"
  * @apiError (400: Error Changing Password) {String} message "Error Changing Password"
