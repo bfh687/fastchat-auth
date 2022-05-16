@@ -99,7 +99,7 @@ router.put(
   middleware.checkToken,
   (req, res, next) => {
     const query = "select * from members where verification = 0 and memberid = $1";
-    const values = req.decoded.memberid;
+    const values = [req.decoded.memberid];
 
     pool
       .query(query, values)
