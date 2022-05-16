@@ -148,7 +148,7 @@ router.post("/forgot", (req, res) => {
  * @apiName ResetPassword
  * @apiGroup Auth
  *
- * @apiHeader {String} authorization JWT provided from /auth get
+ * @apiHeader {String} authorization JWT provided from /auth/forgot
  *
  * @apiParam {String} password the user's new password
  *
