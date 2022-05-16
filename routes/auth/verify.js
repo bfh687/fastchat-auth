@@ -105,4 +105,12 @@ router.get(
   }
 );
 
+router.get("/success", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../html/password", "passwordresetfailure.html"));
+});
+
+router.get("/failure", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../html/password", "passwordresetfailure.html"));
+});
+
 module.exports = router;
