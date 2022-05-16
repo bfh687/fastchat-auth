@@ -23,7 +23,7 @@ router.get("/failure", (req, res) => {
 
 /**
  * @api {get} /auth/verify/:id Request to verify a user
- * @apiName VerifyAuth
+ * @apiName Verify
  * @apiGroup Auth
  *
  * @apiParam {String} id a signed JWT
