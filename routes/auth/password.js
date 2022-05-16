@@ -23,7 +23,8 @@ const sendPasswordResetEmail = require("../../utilities/exports").sendPasswordRe
  *
  * @apiHeader {String} authorization JWT provided from /auth get
  *
- * @apiParam {String} password the user's new password
+ * @apiParam {String} old_password the user's old password
+ * @apiParam {String} new_password the user's new password
  *
  * @apiSuccess (200: Success) {boolean} success whether the password was changed
  * @apiSuccess (200: Success) {String} message "Password Successfully Changed!"
@@ -87,7 +88,21 @@ router.post("/", middleware.checkToken, (req, res) => {
   }
 });
 
-// sends a password reset email to the given user's email (if they exist)
+/**
+ * @api {post} /auth/password/forgot Request to send "forgot password" email to user
+ * @apiName PostAuth
+ * @apiGroup Auth
+ *
+ * @apiParam {String} email the email to send the password-reset link to
+ *
+ * @apiSuccess (200: Success) {boolean} success whether the password was changed
+ * @apiSuccess (200: Success) {String} message "Password Reset Email Successfully Sent!"
+ * @apiSuccess (200: Success) {String} email where the password-reset email was sent
+ *
+ * @apiError (400: Invalid Email) {String} message "Invalid Email"
+ * @apiError (404: User Not Found) {String} message "User Not Found"
+ *
+ */
 router.post("/forgot", (req, res) => {
   const query = "select * from members where email = $1";
   const values = [req.body.email];
@@ -128,7 +143,21 @@ router.post("/forgot", (req, res) => {
   });
 });
 
-// resets user password
+/**
+ * @api {put} /auth/password/reset Request to reset password
+ * @apiName PutAuth
+ * @apiGroup Auth
+ *
+ * @apiHeader {String} authorization JWT provided from /auth get
+ *
+ * @apiParam {String} password the user's new password
+ *
+ * @apiSuccess (200: Success) {boolean} success whether the password was changed
+ * @apiSuccess (200: Success) {String} message "Successfully Reset Password!"
+ *
+ * @apiError (400: Error Resetting Password) {String} message "Error Resetting Password"
+ *
+ */
 router.post("/reset", middleware.checkToken, (req, res) => {
   const salt = generateSalt(32);
   const salted_hash = generateHash(req.body.password, salt);
@@ -142,7 +171,6 @@ router.post("/reset", middleware.checkToken, (req, res) => {
       res.status(200).send({
         success: true,
         message: "Successfully Reset Password!",
-        email: req.decoded.email,
       });
     })
     .catch((err) => {
@@ -152,20 +180,29 @@ router.post("/reset", middleware.checkToken, (req, res) => {
     });
 });
 
+/**
+ * Static HTML page for communicating a successful password reset.
+ */
 router.get("/reset/success", (req, res) => {
   res.sendFile(path.join(__dirname, "../../html/password", "passwordresetsuccess.html"));
 });
 
+/**
+ * Static HTML page for communicating a failed password reset.
+ */
 router.get("/reset/failure", (req, res) => {
   res.sendFile(path.join(__dirname, "../../html/password", "passwordresetfailure.html"));
 });
 
+/**
+ * Static HTML page for resetting password.
+ */
 router.get("/reset/:token", (req, res) => {
   jwt.verify(req.params.token, process.env.JSON_WEB_TOKEN, (err, decoded) => {
     if (err) {
       res.sendFile(path.join(__dirname, "../../html/password", "passwordresetfailure.html"));
     } else {
-      res.sendFile(path.join(__dirname, "../../html/password", "passwordresetreset.html"));
+      res.sendFile(path.join(__dirname, "../../html/password", "passwordreset.html"));
     }
   });
 });

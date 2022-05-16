@@ -3,6 +3,7 @@ const router = express.Router();
 
 const jwt = require("jsonwebtoken");
 const pool = require("../../utilities").pool;
+const path = require("path");
 
 const remove = (memberid) => {
   const query = "delete from members where memberid = $1";
@@ -11,6 +12,14 @@ const remove = (memberid) => {
   // delete user from the database
   pool.query(query, values);
 };
+
+router.get("/success", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../html/password", "passwordresetsuccess.html"));
+});
+
+router.get("/failure", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../html/password", "passwordresetfailure.html"));
+});
 
 /**
  * @api {get} /auth/verify/:id Request to verify a user
@@ -104,13 +113,5 @@ router.get(
       });
   }
 );
-
-router.get("/success", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../html/password", "passwordresetfailure.html"));
-});
-
-router.get("/failure", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../html/password", "passwordresetfailure.html"));
-});
 
 module.exports = router;
