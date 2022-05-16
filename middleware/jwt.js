@@ -16,7 +16,7 @@ const checkToken = (req, res, next) => {
       if (err) {
         return res.status(403).json({
           success: false,
-          message: "Invalid Token",
+          message: "JWT Invalid or Expired",
         });
       } else {
         req.decoded = decoded;
