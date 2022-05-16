@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
+const middleware = require("../../middleware");
 const jwt = require("jsonwebtoken");
+
 const pool = require("../../utilities").pool;
 const path = require("path");
 
@@ -13,20 +15,67 @@ const remove = (memberid) => {
   pool.query(query, values);
 };
 
-router.get("/success", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../html/password", "passwordresetsuccess.html"));
-});
+/**
+ * @api {post} /auth/verify Request to send "account verification" email to user
+ * @apiName VerifyAccount
+ * @apiGroup Auth
+ *
+ * @apiParam {String} email the email to send the account verification link to
+ *
+ * @apiSuccess (200: Success) {boolean} success whether the email was sent
+ * @apiSuccess (200: Success) {String} message "Verification Email Successfully Sent!"
+ * @apiSuccess (200: Success) {String} email where the account verification email was sent
+ *
+ * @apiError (400: Invalid Email) {String} message "Invalid Email"
+ * @apiError (404: User Not Found) {String} message "User Not Found"
+ *
+ */
+router.post("/", (req, res) => {
+  const query = "select * from members where email = $1";
+  const values = [req.body.email];
 
-router.get("/failure", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../html/password", "passwordresetfailure.html"));
+  pool.query(query, values).then((result) => {
+    if (result.rowCount == 0) {
+      res.status(404).send({
+        message: "User Not Found",
+      });
+    } else {
+      const token = jwt.sign(
+        {
+          memberid: result.rows[0].memberid,
+          email: result.rows[0].email,
+        },
+        process.env.JSON_WEB_TOKEN,
+        {
+          expiresIn: "10m",
+        }
+      );
+
+      sendVerificationEmail(req.body.email, token, (err) => {
+        if (err) {
+          res.status(400).send({
+            message: "Invalid Email",
+          });
+          console.log(err);
+          return;
+        } else {
+          res.status(200).send({
+            success: true,
+            message: "Verification Email Successfully Sent!",
+            email: req.body.email,
+          });
+        }
+      });
+    }
+  });
 });
 
 /**
- * @api {get} /auth/verify/:id Request to verify a user
+ * @api {get} /auth/verify Request to verify a user
  * @apiName Verify
  * @apiGroup Auth
  *
- * @apiParam {String} id a signed JWT
+ * @apiHeader {String} authorization JWT provided from /auth/verify post
  *
  * @apiSuccess (200: Success) {boolean} success whether credentials match
  * @apiSuccess (200: Success) {String} message "Successfully Verified Email!!"
@@ -37,7 +86,7 @@ router.get("/failure", (req, res) => {
  *     {
  *       "success": true,
  *       "message": "Successfully Verified Email!",
- *       "token": "fastchat@mail.com"
+ *       "email": "fastchat@mail.com"
  *     }
  *
  * @apiError (400: Error Verifying Email) {String} message "Error Verifying Email"
@@ -45,50 +94,29 @@ router.get("/failure", (req, res) => {
  *
  * @apiError (403: Invalid/Expired JWT) {String} message "JWT Invalid or Expired"
  */
-router.get(
-  "/:token",
+router.put(
+  "/",
+  middleware.checkToken,
   (req, res, next) => {
-    const token = req.params.token;
+    const query = "select * from members where verification = 0 and memberid = $1";
+    const values = req.decoded.memberid;
 
-    jwt.verify(token, process.env.JSON_WEB_TOKEN, { ignoreExpiration: true }, (err, decoded) => {
-      // most likely JWT is expired
-      const curr_time = new Date().getTime() / 1000;
-      if (err || decoded.exp < curr_time) {
-        // check if user is already verified.
-        const query = "select * from members where memberid = $1 and verification = 1";
-        const values = [decoded.memberid];
-
-        pool
-          .query(query, values)
-          .then((result) => {
-            // user is unverified, remove user from database
-            if (result.rowCount == 0) {
-              remove(decoded.memberid);
-
-              res.status(403).send({
-                message: "JWT Invalid or Expired",
-              });
-            }
-            // user is already verified
-            else {
-              res.status(400).send({
-                message: "Email Already Verified",
-              });
-            }
-          })
-          .catch((err) => {
-            // remove user from database
-            remove(req.decoded.memberid);
-
-            res.status(400).send({
-              message: "Error Verifying Email",
-            });
+    pool
+      .query(query, values)
+      .then((result) => {
+        if (result.rowCount == 0) {
+          res.status(400).send({
+            message: "Email Already Verified",
           });
-      } else {
-        req.decoded = decoded;
-        next();
-      }
-    });
+        } else {
+          next();
+        }
+      })
+      .catch((err) => {
+        res.status(400).send({
+          message: "Error Verifying Email",
+        });
+      });
   },
   (req, res) => {
     const query = "update members set verification = 1 where memberid = $1";
@@ -113,5 +141,32 @@ router.get(
       });
   }
 );
+
+/**
+ * Static HTML page for communicating successful account verification.
+ */
+router.get("/success", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../html/verification", "verificationsuccess.html"));
+});
+
+/**
+ * Static HTML page for communicating a failed verification attempt.
+ */
+router.get("/failure", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../html/verification", "verificationfailure.html"));
+});
+
+/**
+ * Static HTML page for verifying account.
+ */
+router.get("/:token", (req, res) => {
+  jwt.verify(req.params.token, process.env.JSON_WEB_TOKEN, (err) => {
+    if (err) {
+      res.sendFile(path.join(__dirname, "../../html/verification", "verificationfailure.html"));
+    } else {
+      res.sendFile(path.join(__dirname, "../../html/verification", "verification.html"));
+    }
+  });
+});
 
 module.exports = router;

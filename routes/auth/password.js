@@ -95,7 +95,7 @@ router.post("/", middleware.checkToken, (req, res) => {
  *
  * @apiParam {String} email the email to send the password-reset link to
  *
- * @apiSuccess (200: Success) {boolean} success whether the password was changed
+ * @apiSuccess (200: Success) {boolean} success whether the email was sent
  * @apiSuccess (200: Success) {String} message "Password Reset Email Successfully Sent!"
  * @apiSuccess (200: Success) {String} email where the password-reset email was sent
  *
@@ -148,7 +148,7 @@ router.post("/forgot", (req, res) => {
  * @apiName ResetPassword
  * @apiGroup Auth
  *
- * @apiHeader {String} authorization JWT provided from /auth/forgot
+ * @apiHeader {String} authorization JWT provided from /auth/forgot post
  *
  * @apiParam {String} password the user's new password
  *
@@ -198,7 +198,7 @@ router.get("/reset/failure", (req, res) => {
  * Static HTML page for resetting password.
  */
 router.get("/reset/:token", (req, res) => {
-  jwt.verify(req.params.token, process.env.JSON_WEB_TOKEN, (err, decoded) => {
+  jwt.verify(req.params.token, process.env.JSON_WEB_TOKEN, (err) => {
     if (err) {
       res.sendFile(path.join(__dirname, "../../html/password", "passwordresetfailure.html"));
     } else {
