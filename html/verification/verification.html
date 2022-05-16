@@ -103,14 +103,13 @@
       }
     </style>
     <script>
-      const localurl = "http://localhost:5000";
       const hosturl = "https://fastchat-auth.herokuapp.com";
 
       const verifyAccount = () => {
         const token = getToken(window.location);
         const bearer = "Bearer " + token;
 
-        fetch(localurl + "/auth/verify", {
+        fetch(hosturl + "/auth/verify", {
           method: "put",
           headers: new Headers({
             Authorization: bearer,
@@ -118,13 +117,13 @@
         })
           .then((res) => {
             if (res.status >= 400) {
-              window.location.replace(localurl + "/auth/verify/failure");
+              window.location.replace(hosturl + "/auth/verify/failure");
             } else {
-              window.location.replace(localurl + "/auth/verify/success");
+              window.location.replace(hosturl + "/auth/verify/success");
             }
           })
           .catch((err) => {
-            window.location.replace(localurl + "/auth/verify/failure");
+            window.location.replace(hosturl + "/auth/verify/failure");
           });
       };
 
