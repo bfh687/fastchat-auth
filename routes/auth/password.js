@@ -19,7 +19,7 @@ const sendPasswordResetEmail = require("../../utilities/exports").sendPasswordRe
 /**
  * @api {post} /auth/password Request to change password
  * @apiName ChangePassword
- * @apiGroup Auth
+ * @apiGroup Password
  *
  * @apiHeader {String} authorization JWT provided from /auth get
  *
@@ -91,7 +91,7 @@ router.post("/", middleware.checkToken, (req, res) => {
 /**
  * @api {post} /auth/password/forgot Request to send "forgot password" email to user
  * @apiName ForgotPassword
- * @apiGroup Auth
+ * @apiGroup Password
  *
  * @apiParam {String} email the email to send the password-reset link to
  *
@@ -146,7 +146,7 @@ router.post("/forgot", (req, res) => {
 /**
  * @api {post} /auth/password/reset Request to reset password
  * @apiName ResetPassword
- * @apiGroup Auth
+ * @apiGroup Password
  *
  * @apiHeader {String} authorization JWT provided from /auth/forgot post
  *

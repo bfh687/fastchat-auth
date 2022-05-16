@@ -18,7 +18,7 @@ const remove = (memberid) => {
 /**
  * @api {post} /auth/verify Request to send "account verification" email to user
  * @apiName VerifyAccount
- * @apiGroup Auth
+ * @apiGroup Verification
  *
  * @apiParam {String} email the email to send the account verification link to
  *
@@ -73,7 +73,7 @@ router.post("/", (req, res) => {
 /**
  * @api {get} /auth/verify Request to verify a user
  * @apiName Verify
- * @apiGroup Auth
+ * @apiGroup Verification
  *
  * @apiHeader {String} authorization JWT provided from /auth/verify post
  *
