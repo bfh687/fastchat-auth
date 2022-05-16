@@ -17,7 +17,7 @@ const generateSalt = require("../../utilities/exports").generateSalt;
 const sendPasswordResetEmail = require("../../utilities/exports").sendPasswordResetEmail;
 
 /**
- * @api {put} /auth/password Request to change password
+ * @api {post} /auth/password Request to change password
  * @apiName ChangePassword
  * @apiGroup Auth
  *
@@ -144,7 +144,7 @@ router.post("/forgot", (req, res) => {
 });
 
 /**
- * @api {put} /auth/password/reset Request to reset password
+ * @api {post} /auth/password/reset Request to reset password
  * @apiName ResetPassword
  * @apiGroup Auth
  *
