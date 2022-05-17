@@ -35,6 +35,7 @@ const sendPasswordResetEmail = require("../../utilities/exports").sendPasswordRe
  * @apiError (400: Error Changing Password) {String} message "Error Changing Password"
  * @apiError (400: Missing Parameters) {String} message "Missing Required Information"
  *
+ * @apiError (403: Invalid/Expired JWT) {String} message "JWT Invalid or Expired"
  */
 router.post("/", middleware.checkToken, (req, res) => {
   const old_password = req.body.old_password;
@@ -117,6 +118,7 @@ router.post("/forgot", (req, res) => {
         {
           memberid: result.rows[0].memberid,
           email: result.rows[0].email,
+          reset: true,
         },
         process.env.JSON_WEB_TOKEN,
         {
@@ -148,7 +150,7 @@ router.post("/forgot", (req, res) => {
  * @apiName ResetPassword
  * @apiGroup Password
  *
- * @apiHeader {String} authorization JWT provided from /auth/forgot post
+ * @apiHeader {String} authorization JWT provided ONLY from /auth/forgot post
  *
  * @apiParam {String} password the user's new password
  *
@@ -157,8 +159,17 @@ router.post("/forgot", (req, res) => {
  *
  * @apiError (400: Error Resetting Password) {String} message "Error Resetting Password"
  *
+ * @apiError (403: Invalid/Expired JWT) {String} message "JWT Invalid or Expired"
  */
 router.post("/reset", middleware.checkToken, (req, res) => {
+  console.log(req.decoded);
+  if (!req.decoded.reset) {
+    res.status(403).send({
+      message: "JWT Invalid or Expired",
+    });
+    return;
+  }
+
   const salt = generateSalt(32);
   const salted_hash = generateHash(req.body.password, salt);
 
@@ -198,8 +209,9 @@ router.get("/reset/failure", (req, res) => {
  * Static HTML page for resetting password.
  */
 router.get("/reset/:token", (req, res) => {
-  jwt.verify(req.params.token, process.env.JSON_WEB_TOKEN, (err) => {
-    if (err) {
+  jwt.verify(req.params.token, process.env.JSON_WEB_TOKEN, (err, decoded) => {
+    // jwt expired or not built specifically through reset-password email request
+    if (err || !decoded.reset) {
       res.sendFile(path.join(__dirname, "../../html/password", "passwordresetfailure.html"));
     } else {
       res.sendFile(path.join(__dirname, "../../html/password", "passwordreset.html"));
