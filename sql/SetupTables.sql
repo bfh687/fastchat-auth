@@ -27,7 +27,7 @@ DROP TABLE IF EXISTS ChatMembers;
 CREATE TABLE ChatMembers (ChatID INT NOT NULL,
                           MemberID INT NOT NULL,
                           FOREIGN KEY(MemberID) REFERENCES Members(MemberID),
-                          FOREIGN KEY(ChatID) REFERENCES Chats(ChatID)
+                          FOREIGN KEY(ChatID) REFERENCES Chats(ChatID) ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS Messages;
@@ -36,7 +36,7 @@ CREATE TABLE Messages (PrimaryKey SERIAL PRIMARY KEY,
                        Message VARCHAR(255),
                        MemberID INT,
                        FOREIGN KEY(MemberID) REFERENCES Members(MemberID),
-                       FOREIGN KEY(ChatID) REFERENCES Chats(ChatID),
+                       FOREIGN KEY(ChatID) REFERENCES Chats(ChatID) ON DELETE CASCADE,
                        TimeStamp TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp
 );
 
